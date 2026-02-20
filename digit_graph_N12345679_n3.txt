@@ -1,0 +1,111 @@
+Digit Transformation Graph: N=12345679, Iterations=3
+==================================================
+Total nodes: 92
+Total edges: 108
+
+Layer 0 (8 nodes):
+  iter0_digit0: 1
+  iter0_digit1: 2
+  iter0_digit2: 3
+  iter0_digit3: 4
+  iter0_digit4: 5
+  iter0_digit5: 6
+  iter0_digit6: 7
+  iter0_digit7: 9
+
+Layer 1 (16 nodes):
+  iter1_t0: 0
+  iter1_b0: 5.0
+  iter1_t1: 1
+  iter1_b1: 0.0
+  iter1_t2: 1
+  iter1_b2: 5.0
+  iter1_t3: 2
+  iter1_b3: 0.0
+  iter1_t4: 2
+  iter1_b4: 5.0
+  iter1_t5: 3
+  iter1_b5: 0.0
+  iter1_t6: 3
+  iter1_b6: 5.0
+  iter1_t7: 4
+  iter1_b7: 5.0
+
+Layer 2 (9 nodes):
+  iter1_digit0: 0
+  iter1_digit1: 6
+  iter1_digit2: 1
+  iter1_digit3: 7
+  iter1_digit4: 2
+  iter1_digit5: 8
+  iter1_digit6: 3
+  iter1_digit7: 9
+  iter1_digit8: 5
+
+Layer 3 (18 nodes):
+  iter2_t0: 0
+  iter2_b0: 0.0
+  iter2_t1: 3
+  iter2_b1: 0.0
+  iter2_t2: 0
+  iter2_b2: 5.0
+  iter2_t3: 3
+  iter2_b3: 5.0
+  iter2_t4: 1
+  iter2_b4: 0.0
+  iter2_t5: 4
+  iter2_b5: 0.0
+  iter2_t6: 1
+  iter2_b6: 5.0
+  iter2_t7: 4
+  iter2_b7: 5.0
+  iter2_t8: 2
+  iter2_b8: 5.0
+
+Layer 4 (10 nodes):
+  iter2_digit0: 0
+  iter2_digit1: 3
+  iter2_digit2: 0
+  iter2_digit3: 8
+  iter2_digit4: 6
+  iter2_digit5: 4
+  iter2_digit6: 1
+  iter2_digit7: 9
+  iter2_digit8: 7
+  iter2_digit9: 5
+
+Layer 5 (20 nodes):
+  iter3_t0: 0
+  iter3_b0: 0.0
+  iter3_t1: 1
+  iter3_b1: 5.0
+  iter3_t2: 0
+  iter3_b2: 0.0
+  iter3_t3: 4
+  iter3_b3: 0.0
+  iter3_t4: 3
+  iter3_b4: 0.0
+  iter3_t5: 2
+  iter3_b5: 0.0
+  iter3_t6: 0
+  iter3_b6: 5.0
+  iter3_t7: 4
+  iter3_b7: 5.0
+  iter3_t8: 3
+  iter3_b8: 5.0
+  iter3_t9: 2
+  iter3_b9: 5.0
+
+Layer 6 (11 nodes):
+  iter3_digit0: 0
+  iter3_digit1: 1
+  iter3_digit2: 5
+  iter3_digit3: 4
+  iter3_digit4: 3
+  iter3_digit5: 2
+  iter3_digit6: 0
+  iter3_digit7: 9
+  iter3_digit8: 8
+  iter3_digit9: 7
+  iter3_digit10: 5
+

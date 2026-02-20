@@ -1,0 +1,48 @@
+Digit Transformation Graph: N=1234, Iterations=2
+==================================================
+Total nodes: 33
+Total edges: 36
+
+Layer 0 (4 nodes):
+  iter0_digit0: 1
+  iter0_digit1: 2
+  iter0_digit2: 3
+  iter0_digit3: 4
+
+Layer 1 (8 nodes):
+  iter1_t0: 0
+  iter1_b0: 5.0
+  iter1_t1: 1
+  iter1_b1: 0.0
+  iter1_t2: 1
+  iter1_b2: 5.0
+  iter1_t3: 2
+  iter1_b3: 0.0
+
+Layer 2 (5 nodes):
+  iter1_digit0: 0
+  iter1_digit1: 6
+  iter1_digit2: 1
+  iter1_digit3: 7
+  iter1_digit4: 0
+
+Layer 3 (10 nodes):
+  iter2_t0: 0
+  iter2_b0: 0.0
+  iter2_t1: 3
+  iter2_b1: 0.0
+  iter2_t2: 0
+  iter2_b2: 5.0
+  iter2_t3: 3
+  iter2_b3: 5.0
+  iter2_t4: 0
+  iter2_b4: 0.0
+
+Layer 4 (6 nodes):
+  iter2_digit0: 0
+  iter2_digit1: 3
+  iter2_digit2: 0
+  iter2_digit3: 8
+  iter2_digit4: 5
+  iter2_digit5: 0
+
