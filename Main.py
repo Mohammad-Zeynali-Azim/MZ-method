@@ -1,355 +1,393 @@
 import pygame
-import sys
-import os
-import subprocess
-from pygame.locals import *
+import MG9846 as mg  # MZ-Method
+import time
 
-# Initialize Pygame
+# =========================================== Cellular Automata Initialization =====================
+print("=" * 120)
+print("MZ-method Cellular Automata")
+print("=" * 60)
+
+n = int(input("Please enter initial value of cellular automata: "))
+num1 = [int(d) for d in str(n)]
+
+# Generate cellular automata using MZ-method (از کد شما)
+L1 = mg.Graph_Generate(num1, 101)
+list3 = []
+for i in range(1, 101):
+    l2 = mg.Node_value_in_Level(i, L1)
+    list3.append(l2)
+
+# Define colors (همانند کد شما)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+zero = (232, 239, 255)
+one = (205, 231, 251)
+two = (159, 209, 249)
+three = (111, 186, 246)
+four = (74, 168, 245)
+five = (40, 153, 243)
+six = (33, 138, 230)
+seven = (21, 117, 209)
+eight = (20, 97, 188)
+nine = (51, 100, 175)
+
+# ============ Pygame Setup ============
 pygame.init()
-
-# Constants
-WIDTH, HEIGHT = 1600, 900
-BACKGROUND_COLOR = (15, 25, 35)
-TITLE_COLOR = (100, 200, 255)
-SUBTITLE_COLOR = (200, 100, 255)
-BUTTON_COLOR = (30, 60, 90)
-BUTTON_HOVER_COLOR = (50, 100, 150)
-BUTTON_TEXT_COLOR = (255, 255, 255)
-BUTTON_BORDER_COLOR = (80, 150, 200)
-BOX_COLOR = (25, 40, 60)
-BOX_BORDER_COLOR = (100, 150, 200)
-BOX_TITLE_COLOR = (255, 200, 100)
-HELP_BOX_COLOR = (40, 55, 75)
-HELP_BOX_BORDER_COLOR = (150, 100, 200)
-
-# Create window
+WIDTH, HEIGHT = 1550, 1000
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Division by Two Universe - Launcher")
-clock = pygame.time.Clock()
+pygame.display.set_caption("MZ-method Cellular Automata")
 
-# Fonts (reduced main title font size)
-title_font = pygame.font.SysFont('Arial', 56, bold=True)  # Reduced from 64
-subtitle_font = pygame.font.SysFont('Arial', 34, italic=True)  # Reduced from 36
-button_font = pygame.font.SysFont('Arial', 28)
-status_font = pygame.font.SysFont('Arial', 22)  # Reduced from 24
-box_title_font = pygame.font.SysFont('Arial', 30, bold=True)  # Reduced from 32
-box_text_font = pygame.font.SysFont('Arial', 24)  # Reduced from 26
-help_font = pygame.font.SysFont('Arial', 22)
+# Fonts
+title_font = pygame.font.SysFont('Arial', 42, bold=True)
+info_font = pygame.font.SysFont('Arial', 28)
+status_font = pygame.font.SysFont('Arial', 32, bold=True)
+small_font = pygame.font.SysFont('Arial', 24)
+digit_font = pygame.font.SysFont('Arial', 14, bold=True)
+coord_font = pygame.font.SysFont('Arial', 18)
 
+# ============ Settings ============
+CELL_SIZE = 20  # اندازه سلول
+MARGIN = 1
+MAX_ROWS = 26  # تعداد سطرها: 41 (تغییر اصلی)
+MAX_COLS = 63  # تعداد ستون‌ها: 60 (تغییر اصلی)
 
-# Button class
-class Button:
-    def __init__(self, x, y, width, height, text, program_path):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.text = text
-        self.program_path = program_path
-        self.hovered = False
+# محاسبه ابعاد صفحه شطرنج
+CHESSBOARD_WIDTH = MAX_COLS * (CELL_SIZE + MARGIN)
+CHESSBOARD_HEIGHT = MAX_ROWS * (CELL_SIZE + MARGIN)
 
-    def draw(self, surface):
-        # Draw button
-        color = BUTTON_HOVER_COLOR if self.hovered else BUTTON_COLOR
-        pygame.draw.rect(surface, color, self.rect, border_radius=12)
-        pygame.draw.rect(surface, BUTTON_BORDER_COLOR, self.rect, 3, border_radius=12)
+# موقعیت مرکزی صفحه شطرنج (با فاصله بیشتر از عنوان)
+chessboard_x = (WIDTH - CHESSBOARD_WIDTH) // 2
+chessboard_y = 250  # فاصله بیشتر از نوشته‌ها (تغییر)
 
-        # Draw text
-        text_surf = button_font.render(self.text, True, BUTTON_TEXT_COLOR)
-        text_rect = text_surf.get_rect(center=self.rect.center)
-        surface.blit(text_surf, text_rect)
+print(f"\nChessboard at center: ({chessboard_x}, {chessboard_y})")
+print(f"Chessboard size: {CHESSBOARD_WIDTH}x{CHESSBOARD_HEIGHT}")
 
-    def check_hover(self, pos):
-        self.hovered = self.rect.collidepoint(pos)
-        return self.hovered
+# ============ Create Lattice (از کد شما) ============
+lattice = []
+for row in range(MAX_ROWS):
+    lattice.append([])
+    for column in range(MAX_COLS):
+        lattice[row].append(40)  # مقدار پیش‌فرض
 
-    def execute(self):
-        """Execute the associated program"""
-        try:
-            if os.path.exists(self.program_path):
-                # For Windows
-                if sys.platform == "win32":
-                    os.startfile(self.program_path)
-                # For Mac/Linux
-                else:
-                    subprocess.Popen([self.program_path])
-                return f"Executed: {os.path.basename(self.program_path)}"
+# محاسبه موقعیت شروع برای مرکز کردن
+center_col = MAX_COLS // 2
+if len(num1) % 2 == 1:  # تعداد ارقام فرد
+    start_col = center_col - (len(num1) // 2)+(len(num1) // 2)+1
+else:  # تعداد ارقام زوج
+    start_col = center_col - (len(num1) // 2) + (len(num1) // 2)+3
+
+print(f"\nCenter calculation:")
+print(f"Number: {n}, Digits: {num1}")
+print(f"Center column: {center_col}")
+print(f"Start column: {start_col}")
+print(f"Middle digit '{num1[len(num1) // 2]}' will be at column {center_col}")
+
+# پر کردن lattice طبق منطق کد شما
+if (n < 10):
+    y = 64 - (len(num1) // 2 * 4 - 1)
+    ynew = 64 - (len(num1) // 2 * 4 - 1)
+    roww = 0
+    for p in list3[:MAX_ROWS]:  # فقط سطرهای قابل مشاهده
+        if (roww == 0):
+            ynew = 65 - (len(num1) // 2 * 4 - 1) - 2
+        else:
+            ynew = 65 - (len(num1) // 2 * 4 - 1) - roww - 3
+
+        for k in p:
+            # تطبیق موقعیت با صفحه شطرنج مرکزی
+            adjusted_y = start_col + (ynew - 64)
+            if 0 <= adjusted_y < MAX_COLS:
+                lattice[roww][adjusted_y] = k
+
+            if (roww % 2 == 0 and roww != 0):
+                ynew = ynew + 2
             else:
-                # Try with .py extension
-                if os.path.exists(self.program_path + ".py"):
-                    subprocess.Popen([sys.executable, self.program_path + ".py"])
-                    return f"Executed: {os.path.basename(self.program_path)}.py"
-                else:
-                    # Try .exe extension
-                    if os.path.exists(self.program_path + ".exe"):
-                        subprocess.Popen([self.program_path + ".exe"])
-                        return f"Executed: {os.path.basename(self.program_path)}.exe"
-                    else:
-                        return f"File not found: {self.program_path}"
-        except Exception as e:
-            return f"Error: {str(e)}"
+                ynew = ynew + 4
+        roww = roww + 1
+else:
+    y = 64 - (len(num1) // 2 * 4 - 1)
+    ynew = 64 - (len(num1) // 2 * 4 - 1)
+    roww = 0
+    for p in list3[:MAX_ROWS]:  # فقط سطرهای قابل مشاهده
+        ynew = 65 - (len(num1) // 2 * 4 - 1) - roww - 3
+
+        for k in p:
+            # تطبیق موقعیت با صفحه شطرنج مرکزی
+            adjusted_y = start_col + (ynew - 64)
+            if 0 <= adjusted_y < MAX_COLS:
+                lattice[roww][adjusted_y] = k
+
+            if (roww % 2 == 0):
+                ynew = ynew + 4
+            else:
+                ynew = ynew + 2
+        roww = roww + 1
+
+# ============ Animation Variables ============
+current_row = 0
+total_rows = min(MAX_ROWS, len(list3))
+auto_proceed = False
+step_delay = 0.8
+last_step_time = time.time()
+show_numbers = True
 
 
-# Create buttons (7 items)
-buttons = []
-button_width, button_height = 350, 80
-button_margin = 20
-start_x = (WIDTH - (button_width * 2 + button_margin)) // 2
+# ============ Helper Functions ============
+def get_color(value):
+    """رنگ مربوط به هر مقدار را برمی‌گرداند (از کد شما)"""
+    if value == 0:
+        return zero
+    elif value == 1:
+        return one
+    elif value == 2:
+        return two
+    elif value == 3:
+        return three
+    elif value == 4:
+        return four
+    elif value == 5:
+        return five
+    elif value == 6:
+        return six
+    elif value == 7:
+        return seven
+    elif value == 8:
+        return eight
+    elif value == 9:
+        return nine
+    elif value == 40:  # خانه خالی
+        return (40, 40, 40)
+    else:
+        return WHITE
 
-# Button positions (2 columns)
-positions = [
-    (start_x, 280),  # Button 1 (left column) - Moved up a bit
-    (start_x, 370),  # Button 2
-    (start_x, 460),  # Button 3
-    (start_x, 550),  # Button 4
 
-    (start_x + button_width + button_margin, 280),  # Button 5 (right column)
-    (start_x + button_width + button_margin, 370),  # Button 6
-    (start_x + button_width + button_margin, 460),  # Button 7
-]
+def draw_lattice():
+    """رسم lattice (از منطق کد شما با تغییرات)"""
+    for row in range(MAX_ROWS):
+        for column in range(MAX_COLS):
+            value = lattice[row][column]
+            color = get_color(value)
 
-# Example program names
-program_names = [
-    "RSIC_T",
-    "division_algorithm",
-    "D2CA_ANI",
-    "parallel_compute",
-    "math_art_generator",
-    "universe_simulation",
-    "quantum_calculator"
-]
+            # فقط سطرهای تا current_row را رسم کن
+            if row <= current_row:
+                pygame.draw.rect(screen, color,
+                                 [chessboard_x + (MARGIN + CELL_SIZE) * column + MARGIN,
+                                  chessboard_y + (MARGIN + CELL_SIZE) * row + MARGIN,
+                                  CELL_SIZE,
+                                  CELL_SIZE])
 
-# Button captions
-captions = [
-    "Complex network Travers",
-    "Division Algorithm",
-    "Division by Two Cellular Automata",
-    "Parallel Compute",
-    "Math Art Generator",
-    "Universe Simulation",
-    "Quantum Calculator"
-]
+                # نمایش عدد اگر خانه پر شده باشد
+                if show_numbers and value != 40 and 0 <= value <= 9:
+                    digit_text = digit_font.render(str(value), True, (0, 0, 0))
+                    digit_rect = digit_text.get_rect(
+                        center=(chessboard_x + (MARGIN + CELL_SIZE) * column + MARGIN + CELL_SIZE // 2,
+                                chessboard_y + (MARGIN + CELL_SIZE) * row + MARGIN + CELL_SIZE // 2))
+                    screen.blit(digit_text, digit_rect)
 
-# Create buttons
-for i in range(7):
-    x, y = positions[i]
-    btn = Button(x, y, button_width, button_height, captions[i], program_names[i])
-    buttons.append(btn)
+            # رسم خطوط شطرنجی برای خانه خالی
+            elif row > current_row:
+                pygame.draw.rect(screen, (60, 60, 60),
+                                 [chessboard_x + (MARGIN + CELL_SIZE) * column + MARGIN,
+                                  chessboard_y + (MARGIN + CELL_SIZE) * row + MARGIN,
+                                  CELL_SIZE,
+                                  CELL_SIZE], 1)
 
-# Status message
-status_message = "Ready to launch programs..."
 
-# Main loop
+def draw_coordinates():
+    """رسم شماره‌گذاری سطرها و ستون‌ها - بهبود یافته"""
+    # شماره‌گذاری سطرها (سمت چپ) - رنگ روشن‌تر و فونت مناسب
+    for row in range(0, total_rows, 2):
+        y = chessboard_y + row * (CELL_SIZE + MARGIN) + (CELL_SIZE + MARGIN) // 2
+        row_text = coord_font.render(str(row), True, (220, 220, 220))  # رنگ روشن‌تر
+        text_x = chessboard_x - 35  # نزدیک‌تر
+        if text_x >= 5:
+            screen.blit(row_text, (text_x, y - row_text.get_height() // 2))
+
+    # شماره‌گذاری سطرها (سمت راست)
+    for row in range(0, total_rows, 2):
+        y = chessboard_y + row * (CELL_SIZE + MARGIN) + (CELL_SIZE + MARGIN) // 2
+        row_text = coord_font.render(str(row), True, (220, 220, 220))  # رنگ روشن‌تر
+        text_x = chessboard_x + CHESSBOARD_WIDTH + 10  # نزدیک‌تر
+        if text_x + row_text.get_width() <= WIDTH - 5:
+            screen.blit(row_text, (text_x, y - row_text.get_height() // 2))
+
+    # شماره‌گذاری ستون‌ها (بالا) - همه ستون‌ها را نمایش بده
+    for col in range(0, MAX_COLS, 2):  # همه ستون‌ها یکی در میان
+        x = chessboard_x + col * (CELL_SIZE + MARGIN) + (CELL_SIZE + MARGIN) // 2
+        col_text = coord_font.render(str(col), True, (220, 220, 220))  # رنگ روشن‌تر
+        text_y = chessboard_y - 20  # بالاتر
+        if text_y >= 5:
+            screen.blit(col_text, (x - col_text.get_width() // 2, text_y))
+
+
+# ============ Main Game Loop ============
+clock = pygame.time.Clock()
 running = True
+
+print("\n" + "=" * 60)
+print("CONTROLS:")
+print("SPACE: Toggle auto-step")
+print("RIGHT: Next row")
+print("LEFT: Previous row")
+print("UP/DOWN: Change speed")
+print("N: Toggle numbers visibility")
+print("R: Reset to first row")
+print("ESC: Exit")
+print("=" * 60)
+
 while running:
-    mouse_pos = pygame.mouse.get_pos()
+    current_time = time.time()
 
-    # Event handling
+    # ============ Event Handling ============
     for event in pygame.event.get():
-        if event.type == QUIT:
+        if event.type == pygame.QUIT:
             running = False
-
-        elif event.type == MOUSEBUTTONDOWN:
-            if event.button == 1:  # Left mouse button
-                for button in buttons:
-                    if button.rect.collidepoint(mouse_pos):
-                        result = button.execute()
-                        status_message = result
-                        print(f"Attempting to execute: {button.program_path}")
-
-        elif event.type == KEYDOWN:
-            if event.key == K_1:
-                result = buttons[0].execute()
-                status_message = f"Executed: {buttons[0].text}"
-            elif event.key == K_2:
-                result = buttons[1].execute()
-                status_message = f"Executed: {buttons[1].text}"
-            elif event.key == K_3:
-                result = buttons[2].execute()
-                status_message = f"Executed: {buttons[2].text}"
-            elif event.key == K_4:
-                result = buttons[3].execute()
-                status_message = f"Executed: {buttons[3].text}"
-            elif event.key == K_5:
-                result = buttons[4].execute()
-                status_message = f"Executed: {buttons[4].text}"
-            elif event.key == K_6:
-                result = buttons[5].execute()
-                status_message = f"Executed: {buttons[5].text}"
-            elif event.key == K_7:
-                result = buttons[6].execute()
-                status_message = f"Executed: {buttons[6].text}"
-            elif event.key == K_ESCAPE:
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
                 running = False
-            elif event.key == K_c:
-                status_message = "Status cleared"
+            elif event.key == pygame.K_SPACE:
+                auto_proceed = not auto_proceed
+                print(f"Auto-step: {'ON' if auto_proceed else 'OFF'}")
+            elif event.key == pygame.K_RIGHT:
+                if current_row < total_rows - 1:
+                    current_row += 1
+                    print(f"Row: {current_row + 1}/{total_rows}")
+            elif event.key == pygame.K_LEFT:
+                if current_row > 0:
+                    current_row -= 1
+                    print(f"Row: {current_row + 1}/{total_rows}")
+            elif event.key == pygame.K_UP:
+                step_delay = max(0.3, step_delay - 0.1)
+                print(f"Step delay: {step_delay:.1f}s")
+            elif event.key == pygame.K_DOWN:
+                step_delay = min(3.0, step_delay + 0.1)
+                print(f"Step delay: {step_delay:.1f}s")
+            elif event.key == pygame.K_n:
+                show_numbers = not show_numbers
+                print(f"Show numbers: {'ON' if show_numbers else 'OFF'}")
+            elif event.key == pygame.K_r:
+                current_row = 0
+                print("Reset to first row")
 
-    # Update button hover states
-    for button in buttons:
-        button.check_hover(mouse_pos)
+    # ============ Auto Proceed Logic ============
+    if auto_proceed and current_time - last_step_time > step_delay:
+        if current_row < total_rows - 1:
+            current_row += 1
+            last_step_time = current_time
+        else:
+            auto_proceed = False
 
-    # Drawing
-    screen.fill(BACKGROUND_COLOR)
+    # ============ Drawing ============
+    screen.fill(BLACK)  # پس‌زمینه سیاه (همانند کد شما)
 
-    # Draw title with reduced font
-    title_text = title_font.render("Division by Two: Its Own Complete Universe", True, TITLE_COLOR)
-    title_rect = title_text.get_rect(center=(WIDTH // 2, 90))  # Moved up a bit
-    screen.blit(title_text, title_rect)
+    # عنوان اصلی - دو خطی برای عدم خروج از صفحه
+    title_line1 = title_font.render("MZ-method-Division by Two Cellular Automata(D2CA)", True, (100, 200, 255))
 
-    # Draw subtitle with reduced font
-    subtitle_text = subtitle_font.render("The Second New Kind of Science", True, SUBTITLE_COLOR)
-    subtitle_rect = subtitle_text.get_rect(center=(WIDTH // 2, 150))  # Moved up
-    screen.blit(subtitle_text, subtitle_rect)
+    title1_x = WIDTH // 2 - title_line1.get_width() // 2
 
-    # Draw decorative line under title
-    pygame.draw.line(screen, (100, 100, 150), (WIDTH // 2 - 220, 175), (WIDTH // 2 + 220, 175), 2)
+    screen.blit(title_line1, (title1_x, 70))
 
-    # Draw buttons
-    for button in buttons:
-        button.draw(screen)
+    # اطلاعات اولیه
+    middle_digit = num1[len(num1) // 2] if len(num1) % 2 == 1 else num1[len(num1) // 2 - 1]
+    info_text = info_font.render(f"Initial Number: {n}  |  Center Digit: {middle_digit} at column {center_col}",
+                                 True, (200, 200, 100))
+    info_x = WIDTH // 2 - info_text.get_width() // 2
+    screen.blit(info_text, (info_x, 130))
 
-    # ============ LEFT BOX: Presented by ============
-    left_box_width = 500
-    left_box_height = 200
-    left_box_x = 50  # Left side
-    left_box_y = HEIGHT - left_box_height - 30  # Bottom left
+    # وضعیت فعلی
+    status_text = status_font.render(
+        f"Row: {current_row + 1}/{total_rows}  |  Auto-step: {'ON' if auto_proceed else 'OFF'}  |  Delay: {step_delay:.1f}s",
+        True, (100, 255, 100)
+    )
+    status_x = WIDTH // 2 - status_text.get_width() // 2
+    screen.blit(status_text, (status_x, 170))
 
-    # Draw left box
-    left_box_rect = pygame.Rect(left_box_x, left_box_y, left_box_width, left_box_height)
-    pygame.draw.rect(screen, BOX_COLOR, left_box_rect, border_radius=15)
-    pygame.draw.rect(screen, BOX_BORDER_COLOR, left_box_rect, 4, border_radius=15)
-
-    # Draw left box title "Presented by"
-    left_box_title = box_title_font.render("Presented by", True, BOX_TITLE_COLOR)
-    left_box_title_rect = left_box_title.get_rect(center=(left_box_x + left_box_width // 2, left_box_y + 30))
-    screen.blit(left_box_title, left_box_title_rect)
-
-    # Draw decorative line under title in left box
-    pygame.draw.line(screen, (150, 200, 255),
-                     (left_box_x + left_box_width // 2 - 80, left_box_y + 55),
-                     (left_box_x + left_box_width // 2 + 80, left_box_y + 55), 2)
-
-    # Draw names in left box (single column, centered)
-    names = [
-        "Mohammad Zeynali Azim",
-        "Dr. Babak Anari",
-        "Dr. Saeid Alikhani",
-        "Dr. Bagher Zarei"
-    ]
-
-    name_spacing = 35
-    names_start_y = left_box_y + 80
-
-    for i, name in enumerate(names):
-        name_text = box_text_font.render(name, True, (200, 220, 255))
-        name_rect = name_text.get_rect(center=(left_box_x + left_box_width // 2, names_start_y + i * name_spacing))
-        screen.blit(name_text, name_rect)
-
-        # Add small decorative dot before each name
-        pygame.draw.circle(screen, (100, 200, 255),
-                           (left_box_x + left_box_width // 2 - 130, names_start_y + i * name_spacing + 10), 4)
-
-    # ============ RIGHT BOX: How to Run Programs ============
-    right_box_width = 500
-    right_box_height = 200
-    right_box_x = WIDTH - right_box_width - 50  # Right side
-    right_box_y = HEIGHT - right_box_height - 30  # Bottom right (same height as left box)
-
-    # Draw right box
-    right_box_rect = pygame.Rect(right_box_x, right_box_y, right_box_width, right_box_height)
-    pygame.draw.rect(screen, HELP_BOX_COLOR, right_box_rect, border_radius=15)
-    pygame.draw.rect(screen, HELP_BOX_BORDER_COLOR, right_box_rect, 4, border_radius=15)
-
-    # Draw right box title "How to Run Programs"
-    right_box_title = box_title_font.render("How to Run Programs", True, (255, 180, 100))
-    right_box_title_rect = right_box_title.get_rect(center=(right_box_x + right_box_width // 2, right_box_y + 30))
-    screen.blit(right_box_title, right_box_title_rect)
-
-    # Draw decorative line under title in right box
-    pygame.draw.line(screen, (200, 150, 255),
-                     (right_box_x + right_box_width // 2 - 100, right_box_y + 55),
-                     (right_box_x + right_box_width // 2 + 100, right_box_y + 55), 2)
-
-    # Draw instructions in right box
-    instructions = [
-        "• Click buttons to launch programs",
-        "• Press 1-7 keys for quick access",
-        "• Press C to clear status",
-        "• Press ESC to exit",
-        "• Programs must be in same folder"
-    ]
-
-    instructions_start_y = right_box_y + 75
-    instruction_spacing = 28
-
-    for i, instruction in enumerate(instructions):
-        inst_color = (220, 200, 255) if i < 4 else (255, 200, 150)  # Different color for last item
-        inst_text = help_font.render(instruction, True, inst_color)
-        inst_rect = inst_text.get_rect(midleft=(right_box_x + 40, instructions_start_y + i * instruction_spacing))
-        screen.blit(inst_text, inst_rect)
-
-        # Add small icon for each instruction
-        icon_color = (150, 220, 255) if i < 4 else (255, 180, 100)
-        icon_x = right_box_x + 20
-        icon_y = instructions_start_y + i * instruction_spacing + 8
-
-        if i == 0:  # Mouse icon
-            pygame.draw.circle(screen, icon_color, (icon_x, icon_y), 6)
-            pygame.draw.line(screen, icon_color, (icon_x, icon_y - 3), (icon_x + 2, icon_y - 8), 2)
-            pygame.draw.line(screen, icon_color, (icon_x, icon_y - 3), (icon_x - 2, icon_y - 8), 2)
-        elif i == 1:  # Keyboard icon
-            pygame.draw.rect(screen, icon_color, (icon_x - 4, icon_y - 4, 8, 8), 1)
-            key_text = help_font.render("1", True, icon_color)
-            key_rect = key_text.get_rect(center=(icon_x, icon_y))
-            screen.blit(key_text, key_rect)
-        elif i == 2:  # C key icon
-            pygame.draw.rect(screen, icon_color, (icon_x - 5, icon_y - 5, 10, 10), 1, border_radius=2)
-            key_text = help_font.render("C", True, icon_color)
-            key_rect = key_text.get_rect(center=(icon_x, icon_y))
-            screen.blit(key_text, key_rect)
-        elif i == 3:  # ESC key icon
-            pygame.draw.rect(screen, icon_color, (icon_x - 7, icon_y - 5, 14, 10), 1, border_radius=2)
-            key_text = help_font.render("ESC", True, icon_color)
-            key_rect = key_text.get_rect(center=(icon_x, icon_y))
-            screen.blit(key_text, key_rect)
-        elif i == 4:  # Folder icon
-            pygame.draw.rect(screen, icon_color, (icon_x - 8, icon_y - 2, 16, 12), 1)
-            pygame.draw.rect(screen, icon_color, (icon_x - 6, icon_y - 5, 12, 3), 1)
-
-    # ============ Status Bar ============
-    # Draw status bar at bottom center
-    status_bar_width = 600
-    status_bar_height = 35
-    status_bar_x = (WIDTH - status_bar_width) // 2
-    status_bar_y = HEIGHT - 80  # Above the boxes
-
-    # Draw status bar background
-    pygame.draw.rect(screen, (30, 45, 65), (status_bar_x, status_bar_y, status_bar_width, status_bar_height),
-                     border_radius=8)
-    pygame.draw.rect(screen, (80, 120, 160), (status_bar_x, status_bar_y, status_bar_width, status_bar_height), 2,
+    # ============ Drawing Chessboard ============
+    # پس‌زمینه صفحه شطرنج
+    pygame.draw.rect(screen, (30, 35, 45),
+                     (chessboard_x - 10, chessboard_y - 10,
+                      CHESSBOARD_WIDTH + 20, CHESSBOARD_HEIGHT + 20),
                      border_radius=8)
 
-    # Draw status message
-    status_text = status_font.render(f"Status: {status_message}", True, (200, 220, 100))
-    status_rect = status_text.get_rect(center=(WIDTH // 2, status_bar_y + status_bar_height // 2))
-    screen.blit(status_text, status_rect)
+    # رسم lattice
+    draw_lattice()
 
-    # Draw decorative binary pattern at top (centered)
-    binary_pattern = "1010 1010 1010 1010"
-    pattern_y = 10
-    for i, char in enumerate(binary_pattern):
-        if char == ' ':
-            continue
-        color = (80, 160, 220) if char == '1' else (40, 80, 120)
-        pattern_x = WIDTH // 2 - 180 + i * 20  # Adjusted spacing
-        pygame.draw.rect(screen, color, (pattern_x, pattern_y, 12, 3))
+    # شماره‌گذاری
+    draw_coordinates()
 
-    # Draw current directory info
-    current_dir = os.path.basename(os.getcwd())
-    dir_text = help_font.render(f"Current Folder: {current_dir}", True, (150, 180, 220))
-    dir_rect = dir_text.get_rect(center=(WIDTH // 2, 210))
-    screen.blit(dir_text, dir_rect)
+    # هایلایت سطر فعلی
+    if current_row < total_rows:
+        highlight_y = chessboard_y + current_row * (CELL_SIZE + MARGIN)
+        pygame.draw.rect(screen, (255, 255, 100, 50),
+                         (chessboard_x, highlight_y, CHESSBOARD_WIDTH, CELL_SIZE + MARGIN))
+        pygame.draw.rect(screen, (255, 255, 100),
+                         (chessboard_x, highlight_y, CHESSBOARD_WIDTH, CELL_SIZE + MARGIN), 2)
+
+    # ============ Information Panel ============
+
+
+    # ============ Control Panel ============
+    control_panel_y = HEIGHT - 200  # 50 پیکسل بالاتر (تغییر)
+    control_panel = pygame.Rect(WIDTH - 430, control_panel_y, 400, 170)
+    pygame.draw.rect(screen, (25, 35, 45), control_panel, border_radius=8)
+    pygame.draw.rect(screen, (70, 90, 110), control_panel, 2, border_radius=8)
+
+    control_lines = [
+        "CONTROLS:",
+        "SPACE: Auto-step",
+        "→ ← : Next/Prev row",
+        "R: Reset   ESC: Exit"
+    ]
+
+    for i, line in enumerate(control_lines):
+        color = (100, 200, 255) if i == 0 else (200, 220, 255)
+        text = small_font.render(line, True, color)
+        screen.blit(text, (WIDTH - 410, control_panel_y + 20 + i * 28))
+
+    # ============ Progress Bar ============
+    progress_y = chessboard_y + CHESSBOARD_HEIGHT + 20  # نزدیک‌تر به صفحه شطرنج
+    progress_width = min(1000, CHESSBOARD_WIDTH)  # عرض محدود
+    progress_x = chessboard_x + (CHESSBOARD_WIDTH - progress_width) // 2-160
+
+    # اطمینان از اینکه Progress Bar در صفحه باشد
+    if progress_y + 50 < HEIGHT:  # اگر فضای کافی وجود دارد
+        pygame.draw.rect(screen, (40, 50, 60),
+                         (progress_x, progress_y, progress_width, 20), border_radius=10)
+
+        progress = (current_row + 1) / total_rows
+        pygame.draw.rect(screen, (0, 180, 80),
+                         (progress_x, progress_y, int(progress_width * progress), 20), border_radius=10)
+
+        progress_text = info_font.render(f"Progress: {progress * 100:.1f}%  ({current_row + 1}/{total_rows} rows)",
+                                         True, (200, 200, 100))
+        progress_text_x = progress_x + progress_width // 2 - progress_text.get_width() // 2
+        screen.blit(progress_text, (progress_text_x, progress_y + 25))
+
+        # ============ Color Legend ============
+        legend_y = progress_y + 60
+        # اطمینان از اینکه Color Legend در صفحه باشد
+        if legend_y + 50 < HEIGHT:
+            legend_colors = [zero, one, two, three, four, five, six, seven, eight, nine]
+
+            legend_title = small_font.render("Digits 0-9:", True, (200, 200, 200))
+            screen.blit(legend_title, (progress_x, legend_y - 25))
+
+            for i in range(10):
+                color_rect = pygame.Rect(progress_x + i * 35, legend_y, 32, 32)
+                pygame.draw.rect(screen, legend_colors[i], color_rect)
+                pygame.draw.rect(screen, (255, 255, 255), color_rect, 1)
+
+                num_label = coord_font.render(str(i), True, (0, 0, 0))
+                label_rect = num_label.get_rect(center=color_rect.center)
+                screen.blit(num_label, label_rect)
 
     pygame.display.flip()
     clock.tick(60)
 
-# Cleanup
+# ============ Cleanup ============
 pygame.quit()
-sys.exit()
+print("\n" + "=" * 60)
+print("ANIMATION COMPLETED")
+print("=" * 60)
+print(f"Final row reached: {current_row + 1}")
+print("Pattern displayed according to original MZ-method logic!")
